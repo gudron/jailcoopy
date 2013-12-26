@@ -1,0 +1,61 @@
+#!/bin/bash
+
+BIN_NAME=""
+JAIL_ROOT=""
+
+usage() {
+	echo "USAGE: $0 -n <BINARY_NAME> -j <JAIL_ROOT>"
+	echo -e "Options:"
+	echo -e "\t-n <BINARY_NAME>\tBinary application name.\t Example: bash, sh, rsync"
+	echo -e "\t-j <JAIL_ROOT>\t\tJailroot path.\t\t\t Example: /home/virtualhosts/example.dev	"
+}
+
+printError() {
+	echo "[!] Invalid option" && usage && exit 1
+}
+
+function copyToJail {
+	dirPath=`dirname $1`
+	mkdir -p $JAIL_ROOT$dirPath
+	cp $1 $JAIL_ROOT$dirPath
+}
+
+function findSoLibrary () {
+	binPath=`whereis $BIN_NAME | awk '{print $2}'`
+	fileToCopy=`ldd $binPath`
+
+	while IFS= read -r line
+	do
+		libName=`echo "$line" | awk '{print $1}'`
+		libPath=`echo "$line" | awk '{print $3}'`
+
+		if [ -s $libPath ] && [ -f $libPath ] && [ -e $libPath ] && [ ! -z "$libPath" -a "$libPath" != " " ]
+		then
+			echo "$libPath exist"
+			copyToJail $libPath
+		else
+			if [ -s $libName ] && [ -f $libName ] && [ -e $libName ]
+			then
+				echo "$libName exist"
+				copyToJail $libName
+			fi
+		fi
+	done <<< "$fileToCopy"
+}
+
+while getopts "n:j:" Option; do
+	case $Option in
+			n ) BIN_NAME="$OPTARG";;
+			j ) JAIL_ROOT="$OPTARG";;
+			* ) printError;;
+	esac
+done
+
+if [ "$BIN_NAME" != "" -a "$JAIL_ROOT" != "" ]
+then
+	findSoLibrary
+else
+	printError
+fi
+
+exit 0
