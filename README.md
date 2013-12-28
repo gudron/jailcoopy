@@ -1,7 +1,13 @@
 # JAILCOPY HELPER
 
 ## About Jailcopy
+Little and simple helper for copy binary file and their ".so" or ".dlib"(on MacOS X) libraries into jail root path. 
 // TODO write anything about that bash script
+
+
+## Required
+
+Linux-like or bsd-like or MacOS operation system
 
 ## Installation & Documentation
 
@@ -13,6 +19,9 @@ sudo sh -c 'wget https://raw.github.com/gudron/jailcopy/master/jailcopy -P /usr/
 ```
 
 ### Documentation
+
+
+
 <pre>
 USAGE: ./jailcopy -n <BINARY_NAME> -j <JAIL_ROOT>
 Options:

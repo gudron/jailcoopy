@@ -16,14 +16,12 @@ printError() {
 
 function copyToJail {
 	dirPath=`dirname $1`
+	echo "copy $1"		
 	mkdir -p $JAIL_ROOT$dirPath
 	cp $1 $JAIL_ROOT$dirPath
 }
 
 function findSoLibrary () {
-	binPath=`whereis $BIN_NAME | awk '{print $2}'`
-	fileToCopy=`ldd $binPath`
-
 	while IFS= read -r line
 	do
 		libName=`echo "$line" | awk '{print $1}'`
@@ -31,16 +29,23 @@ function findSoLibrary () {
 
 		if [ -s $libPath ] && [ -f $libPath ] && [ -e $libPath ] && [ ! -z "$libPath" -a "$libPath" != " " ]
 		then
-			echo "$libPath exist"
 			copyToJail $libPath
 		else
 			if [ -s $libName ] && [ -f $libName ] && [ -e $libName ]
 			then
-				echo "$libName exist"
 				copyToJail $libName
 			fi
 		fi
-	done <<< "$fileToCopy"
+	done <<< "$filesToCopy"
+
+}
+
+function main() {
+	binPath=`whereis $BIN_NAME | awk '{print $2}'`
+	filesToCopy=`ldd $binPath`
+
+	findSoLibrary filesToCopy
+	copyToJail $binPath
 }
 
 while getopts "n:j:" Option; do
@@ -53,7 +58,7 @@ done
 
 if [ "$BIN_NAME" != "" -a "$JAIL_ROOT" != "" ]
 then
-	findSoLibrary
+	main
 else
 	printError
 fi
