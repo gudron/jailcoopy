@@ -16,7 +16,7 @@ printError() {
 
 function copyToJail {
 	dirPath=`dirname $1`
-	echo "copy $1"		
+	echo "copy $1 to $JAIL_ROOT$dirPath"		
 	mkdir -p $JAIL_ROOT$dirPath
 	cp $1 $JAIL_ROOT$dirPath
 }
