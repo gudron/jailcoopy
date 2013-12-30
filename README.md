@@ -4,12 +4,13 @@
 Little and simple helper for copy binary file and their ".so" or ".dlib"(on MacOS X) libraries into jail root path. 
 // TODO write anything about that bash script
 
+## Installation & Documentation
 
-## Required
+### Required
+
+#### OS
 
 Linux-like or bsd-like or MacOS operation system
-
-## Installation & Documentation
 
 ### Installation
 
@@ -19,8 +20,6 @@ sudo sh -c 'wget https://raw.github.com/gudron/jailcoopy/master/jailcoopy -P /us
 ```
 
 ### Documentation
-
-
 
 <pre>
 USAGE: ./jailcoopy -n <BINARY_NAME> -j <JAIL_ROOT>
