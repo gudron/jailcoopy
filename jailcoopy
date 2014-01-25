@@ -2,6 +2,7 @@
 
 BIN_NAME=""
 JAIL_ROOT=""
+LIST=""
 
 usage() {
 	echo "USAGE: $0 -n <BINARY_NAME> -j <JAIL_ROOT>"
@@ -52,6 +53,7 @@ while getopts "n:j:" Option; do
 	case $Option in
 			n ) BIN_NAME="$OPTARG";;
 			j ) JAIL_ROOT="$OPTARG";;
+			l ) LIST="$OPTARG";;
 			* ) printError;;
 	esac
 done
