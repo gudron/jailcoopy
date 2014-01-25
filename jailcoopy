@@ -1,5 +1,21 @@
 #!/bin/bash
-
+# ----------------------------------------------------------------------
+#    Copyright (c) 2014
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 3 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+# ----------------------------------------------------------------------
+# Authors:
+#  Alex V Kotelnikov (aka gudron) <gudron@gudron.me>
+#
+# /usr/local/bin/jailcoopy
 BIN_NAME=""
 JAIL_ROOT=""
 
@@ -50,9 +66,9 @@ function main() {
 
 while getopts "n:j:" Option; do
 	case $Option in
-			n ) BIN_NAME="$OPTARG";;
-			j ) JAIL_ROOT="$OPTARG";;
-			* ) printError;;
+		n ) BIN_NAME="$OPTARG";;
+		j ) JAIL_ROOT="$OPTARG";;
+		* ) printError;;
 	esac
 done
 
