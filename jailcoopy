@@ -51,11 +51,13 @@ function copyBinFile () {
 }
 
 function main () {
-	if [ "$LIST" != "" ]
+	if [ $LIST != "" ]
 	then
-		IFS=',' read -a binNameArray <<< "$string"
+		IFS=',' read -a binNameArray <<< "$LIST"
+		echo $binNameArray
 		for element in "${binNameArray[@]}"
 		do
+			echo $element
 			copyBinFile "$element"
 		done
 	else
@@ -63,7 +65,7 @@ function main () {
 	fi
 }
 
-while getopts "n:j:" Option; do
+while getopts "n:j:l:" Option; do
 	case $Option in
 			n ) BIN_NAME="$OPTARG";;
 			j ) JAIL_ROOT="$OPTARG";;
@@ -72,8 +74,7 @@ while getopts "n:j:" Option; do
 	esac
 done
 
-if [ "$BIN_NAME" != "" -a "$JAIL_ROOT" != "" ]
-then
+if [ "$JAIL_ROOT" != "" ] && { [ $LIST != "" ] || [ "$BIN_NAME" != ]; } then
 	main
 else
 	printError
