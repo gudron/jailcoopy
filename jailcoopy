@@ -1,23 +1,8 @@
 #!/bin/bash
-# ----------------------------------------------------------------------
-#    Copyright (c) 2014
-#
-#    This program is free software; you can redistribute it and/or
-#    modify it under the terms of version 3 of the GNU General Public
-#    License published by the Free Software Foundation.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-# ----------------------------------------------------------------------
-# Authors:
-#  Alex V Kotelnikov (aka gudron) <gudron@gudron.me>
-#
-# /usr/local/bin/jailcoopy
+
 BIN_NAME=""
 JAIL_ROOT=""
+LIST=""
 
 usage() {
 	echo "USAGE: $0 -n <BINARY_NAME> -j <JAIL_ROOT>"
@@ -56,19 +41,34 @@ function findSoLibrary () {
 
 }
 
-function main() {
-	binPath=`whereis $BIN_NAME | awk '{print $2}'`
+function copyBinFile () {
+	fileName=$1
+	binPath=`whereis $fileName | awk '{print $2}'`
 	filesToCopy=`ldd $binPath`
 
 	findSoLibrary filesToCopy
 	copyToJail $binPath
 }
 
+function main () {
+	if [ "$LIST" != "" ]
+	then
+		IFS=',' read -a binNameArray <<< "$string"
+		for element in "${binNameArray[@]}"
+		do
+			copyBinFile "$element"
+		done
+	else
+		copyBinFile "$BIN_NAME"
+	fi
+}
+
 while getopts "n:j:" Option; do
 	case $Option in
-		n ) BIN_NAME="$OPTARG";;
-		j ) JAIL_ROOT="$OPTARG";;
-		* ) printError;;
+			n ) BIN_NAME="$OPTARG";;
+			j ) JAIL_ROOT="$OPTARG";;
+			l ) LIST="$OPTARG";;
+			* ) printError;;
 	esac
 done
 
