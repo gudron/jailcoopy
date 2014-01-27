@@ -1,4 +1,24 @@
 #!/bin/bash
+# ----------------------------------------------------------------------
+#	Copyright (c) 2014
+#
+#	This program is free software; you can redistribute it and/or
+#	modify it under the terms of version 3 of the GNU General Public
+#	License published by the Free Software Foundation.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+# ----------------------------------------------------------------------
+# Authors:
+#	Alex V Kotelnikov (aka gudron) <gudron@gudron.me>
+#
+# Repository:
+#	https://github.com/gudron/jailcoopy
+#
+# /usr/local/bin/jailcoopy
 
 BIN_NAME=""
 JAIL_ROOT=""
@@ -42,8 +62,26 @@ function findSoLibrary () {
 }
 
 function copyBinFile () {
-	fileName=$1
-	binPath=`whereis $fileName | awk '{print $2}'`
+	local fileName=$1
+	local fileExtension=""
+	#binPath=`whereis $fileName | awk '{print $2}'`
+	local binPath=`whereis $fileName`
+	local binName=""
+	IFS=' ' read -a binNameArray <<< "$binPath"
+	for element in "${binNameArray[@]}"
+		do
+			binName=`basename "$element"`
+			fileExtension="${filename##*.}"
+			if [ $fileExtension != "" -a $fileExtension != $binName ] 
+			then
+				filesToCopy=`ldd $element`
+				findSoLibrary filesToCopy
+				copyToJail $element
+			else
+				copyToJail $element
+			fi
+	done
+
 	filesToCopy=`ldd $binPath`
 
 	findSoLibrary filesToCopy
