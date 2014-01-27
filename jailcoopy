@@ -35,6 +35,12 @@ printError() {
 	echo "[!] Invalid option" && usage && exit 1
 }
 
+function linkIntoJail {
+	dirPath=`dirname $1`
+	echo "Linked $1 to $JAIL_ROOT$dirPath"		
+	#todo
+}
+
 function copyToJail {
 	dirPath=`dirname $1`
 	echo "copy $1 to $JAIL_ROOT$dirPath"		
@@ -68,17 +74,22 @@ function copyBinFile () {
 	local binPath=`whereis $fileName`
 	local binName=""
 	IFS=' ' read -a nameArray <<< "$binPath"
-	unset nameArray[0]
+	unset nameArray[0] #unset whereis header; example bash: /bin/bash . "bash:" unseted
 	for element in "${nameArray[@]}"
 	do
 		if [ -f "$element" ]
 		then
-			binName=`basename "$element"`
+			baseName=`basename "$element"`
 			mimeType=`file -h --mime-type "$element" | awk '{print $2}'`
+			binName=$element;
 			case $mimeType in
-				"inode/symlink" ) ;;
+				"inode/symlink" )
+					binName=`readlink -f "$mimeType"`
+					linkIntoJail $element $binName
 				"application/x-executable" ) 
-				
+					filesToCopy=`ldd $binName`
+					findSoLibrary filesToCopy
+					copyToJail $element
 				;;
 				* ) 
 				copyToJail $element;;
