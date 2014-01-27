@@ -67,35 +67,32 @@ function copyBinFile () {
 	#binPath=`whereis $fileName | awk '{print $2}'`
 	local binPath=`whereis $fileName`
 	local binName=""
-	IFS=' ' read -a binNameArray <<< "$binPath"
-	for element in "${binNameArray[@]}"
-		do
+	IFS=' ' read -a nameArray <<< "$binPath"
+	unset nameArray[0]
+	for element in "${nameArray[@]}"
+	do
+		if [ -f "$element" ]
+		then
 			binName=`basename "$element"`
-			fileExtension="${filename##*.}"
-			if [ $fileExtension != "" -a $fileExtension != $binName ] 
-			then
-				filesToCopy=`ldd $element`
-				findSoLibrary filesToCopy
-				copyToJail $element
-			else
-				copyToJail $element
-			fi
+			mimeType=`file -h --mime-type "$element" | awk '{print $2}'`
+			case $mimeType in
+				"inode/symlink" ) ;;
+				"application/x-executable" ) 
+				
+				;;
+				* ) 
+				copyToJail $element;;
+			esac
+		fi
 	done
-
-	filesToCopy=`ldd $binPath`
-
-	findSoLibrary filesToCopy
-	copyToJail $binPath
 }
 
 function main () {
 	if [ $LIST != "" ]
 	then
 		IFS=',' read -a binNameArray <<< "$LIST"
-		echo $binNameArray
 		for element in "${binNameArray[@]}"
 		do
-			echo $element
 			copyBinFile "$element"
 		done
 	else
