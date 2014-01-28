@@ -24,11 +24,17 @@ BIN_NAME=""
 JAIL_ROOT=""
 LIST=""
 
+execPath=`pwd`
+
 usage() {
-	echo "USAGE: $0 -n <BINARY_NAME> -j <JAIL_ROOT>"
+	sn=`basename $0`
+	
+	echo "USAGE: $sn -n <BINARY_NAME> -j <JAIL_ROOT>"
+	echo "USAGE: $sn -l <LIST> -j <JAIL_ROOT>"
 	echo -e "Options:"
 	echo -e "\t-n <BINARY_NAME>\tBinary application name.\t Example: bash, sh, rsync"
 	echo -e "\t-j <JAIL_ROOT>\t\tJailroot path.\t\t\t Example: /home/virtualhosts/example.dev	"
+	echo -e "\t-l <LIST>\tList of binary file names.\t Example: 'sh,bash,ssh,rsync"
 }
 
 printError() {
@@ -36,15 +42,23 @@ printError() {
 }
 
 function linkIntoJail {
-	dirPath=`dirname $1`
-	echo "Linked $1 to $JAIL_ROOT$dirPath"		
-	#todo
+	#linkPath - $1
+	#binPath - $2
+	local linkPath=$1
+	local linkName=`basename "$linkPath"`
+	local binPath=$2
+	dirPath=`dirname $linkPath`
+	if [ ! -d "$JAIL_ROOT$dirPath" ]; then
+		mkdir -p "$JAIL_ROOT$dirPath"
+	fi
+	cd "$JAIL_ROOT$dirPath" && ln -s "$binPath" "$linkName" && cd "$execPath"
 }
 
 function copyToJail {
 	dirPath=`dirname $1`
-	echo "copy $1 to $JAIL_ROOT$dirPath"		
-	mkdir -p $JAIL_ROOT$dirPath
+	if [ ! -d "$JAIL_ROOT$dirPath" ]; then
+		mkdir -p $JAIL_ROOT$dirPath
+	fi
 	cp $1 $JAIL_ROOT$dirPath
 }
 
@@ -84,8 +98,13 @@ function copyBinFile () {
 			binName=$element;
 			case $mimeType in
 				"inode/symlink" )
-					binName=`readlink -f "$mimeType"`
-					linkIntoJail $element $binName
+					binName=`readlink "$element"`
+					linkedBinPath=`readlink -f "$element"`
+					filesToCopy=`ldd $linkedBinPath`
+					findSoLibrary filesToCopy
+					copyToJail $linkedBinPath
+					linkIntoJail $element $binName #;&
+					;;
 				"application/x-executable" ) 
 					filesToCopy=`ldd $binName`
 					findSoLibrary filesToCopy
@@ -99,7 +118,8 @@ function copyBinFile () {
 }
 
 function main () {
-	if [ $LIST != "" ]
+	execPath=`pwd`
+	if [ "$LIST" != "" ]
 	then
 		IFS=',' read -a binNameArray <<< "$LIST"
 		for element in "${binNameArray[@]}"
@@ -120,7 +140,7 @@ while getopts "n:j:l:" Option; do
 	esac
 done
 
-if [ "$JAIL_ROOT" != "" ] && { [ $LIST != "" ] || [ "$BIN_NAME" != ]; } then
+if [ "$JAIL_ROOT" != "" ] && { [ "$LIST" != "" ] || [ "$BIN_NAME" != "" ]; } then
 	main
 else
 	printError
