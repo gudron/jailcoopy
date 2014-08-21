@@ -24,7 +24,7 @@ sudo sh -c 'wget https://raw.github.com/gudron/jailcoopy/master/jailcoopy -P /us
 <pre>
 USAGE: ./jailcoopy -n <BINARY_NAME> -j <JAIL_ROOT>
 Options:
-	-n <BINARY_NAME>	Binary application name.	 Example: bash, sh, rsync
+	-n <BINARY_NAME>	Binary application name.	 Example: rsync
 	-j <JAIL_ROOT>		Jailroot path.				 Example: /home/virtualhosts/example.dev	
-	-l <LIST_OF_BIN_NAMES>	List of names of binary application. Example: bash  sh  rsync
+	-l <LIST_OF_BIN_NAMES>	List of names of binary application separeted by comma -",". Example: bash,sh,rsync
 </pre>
