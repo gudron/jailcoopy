@@ -105,7 +105,7 @@ function copyBinFile () {
 					copyToJail $linkedBinPath
 					linkIntoJail $element $binName #;&
 					;;
-				"application/x-executable" ) 
+				"application/x-executable" | "application/x-sharedlib") 
 					filesToCopy=`ldd $binName`
 					findSoLibrary filesToCopy
 					copyToJail $element
